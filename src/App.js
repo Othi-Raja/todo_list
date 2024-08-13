@@ -1,36 +1,72 @@
-import React, { useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Modal, Button, } from 'react-bootstrap';
+import {  toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { faCircleCheck, faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 function App() {
   const [toDo, setToDo] = useState([]);
   const [newTask, setNewTask] = useState('');
-  console.log(useState());
+  // console.log(useState());
   const [updateData, setUpdateData] = useState('');
   //popup
   const [show, setShow] = useState(false);
   // content delete
   const [taskToDelete, setTaskToDelete] = useState(null);
-  const handleClose = () =>{
-   setShow(false);
+  // set completed task to an array
+  const [taskCompleted, settaskCompleted] = useState([])
+  const handleClose = () => {
+    setShow(false);
   }
   const handleShow = (task) => {
-    setTaskToDelete(task); 
+    setTaskToDelete(task);
     console.log(task);
     setShow(true);
   };
+  let Toast_info =(message)=>{
+    toast.info(message, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark", 
+      });
+  }
+  let Toast_sucess =(message)=>{
+    toast.success(message, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+  
+      });
+  }
   const addTask = () => {
-    if (newTask) {
+    if (newTask.length === 0) {
+      console.log('empty',newTask.length);
+      Toast_info('Invalid Input')
+    }
+    else if (newTask) {
+      Toast_sucess('Task Added ')
+
       let num = toDo.length + 1;
       console.log(num);
-      let newEntry = { 
-        id: num, 
-        title: newTask, 
-        status: false 
+      let newEntry = {
+        id: num,
+        title: newTask,
+        status: false
       };
       console.log(newEntry);
+      // console.log(toDo);
       //add value to the array
       setToDo([...toDo, newEntry]);
       // empty input value
@@ -45,6 +81,20 @@ function App() {
       handleClose();
     }
   };
+  
+  //--------------------------------
+ 
+  let competedtask = (TCdata) => {
+    console.log(TCdata);
+    settaskCompleted((task) => [...task, TCdata])
+    console.log(taskCompleted);
+  }
+  // useEffect(() => {
+  //   console.log(taskCompleted);
+  // }, [taskCompleted]);
+ 
+  //--------------------------------
+
   const markDone = (id) => {
     const newTasks = toDo.map((task) => {
       if (task.id === id) {
@@ -73,10 +123,9 @@ function App() {
   };
   return (
     <div className="container App">
-    <div className='py-5 '>
-    <h2 className=''>To Do List App (ReactJS)</h2>
-    </div>
-   
+      <div className='py-5 '>
+        <h2 className=''>To Do List App (ReactJS)</h2>
+      </div>
       {updateData && updateData ? (
         <>
           <div className="row">
@@ -107,7 +156,7 @@ function App() {
                 onChange={(e) => setNewTask(e.target.value)}
                 className="form-control form-control-lg"
                 id='finput'
-              /> 
+              />
             </div>
             <div className="col-auto">
               <button className="btn btn-lg btn-success" onClick={addTask}>
@@ -131,7 +180,7 @@ function App() {
                     <span className="taskText">{task.title}</span>
                   </div>
                   <div className="iconsWrap">
-                    <span onClick={(e) => markDone(task.id)} title="Completed / Not Completed">
+                    <span onClick={(e) => { markDone(task.id); competedtask(task.title); }} title="Completed / Not Completed">
                       <FontAwesomeIcon icon={faCircleCheck} />
                     </span>
                     {task.status ? null : (
@@ -157,7 +206,7 @@ function App() {
                   {/* <Modal.Header >
                     <Modal.Title>Delete Task</Modal.Title>
                   </Modal.Header> */}
-                  <Modal.Body className='text-black text-center text-black-50 title-style' >Do You Want to Delete <br/> <b>{task.title}</b></Modal.Body>
+                  <Modal.Body className='text-black text-center text-black-50 title-style' >Do You Want to Delete <br /> <b>{task.title}</b></Modal.Body>
                   <Modal.Footer>
                     <Button className='close-btn' onClick={handleClose}>
                       Close
